@@ -4,12 +4,19 @@
 import psycopg2     # conversa diretamente com o PostgreSQL
 from psycopg2 import sql  # para criar queries dinamicas
 
-HOST = 'localhost'
-PORT = '5432'
-USUARIO = 'postgres'
-SENHA = '030988'
-DBNAME = 'postgres'
-NOME_BASE= 'DB_SUPERMARKET'
+import os
+from dotenv import load_dotenv
+
+PASTA_SRC = os.path.dirname(os.path.abspath(__file__))
+PASTA_PROJETO = os.path.dirname(PASTA_SRC)
+load_dotenv(os.path.join(PASTA_PROJETO, 'config.env'))
+
+HOST = os.getenv('DB_HOST')
+PORT = os.getenv('DB_PORT')
+USUARIO = os.getenv('DB_USER')
+SENHA = os.getenv('DB_PASSWORD')
+DBNAME = 'postgres'                 # banco usado só para conectar e criar o outro
+NOME_BASE = os.getenv('DB_NAME')    # banco que será criado (DB_SUPERMARKET)
 
 #Criar conexão com o banco de dados POSTGGRESQL
 conexao = psycopg2.connect(
