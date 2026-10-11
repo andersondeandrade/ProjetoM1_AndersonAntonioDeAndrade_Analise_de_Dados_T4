@@ -18,3 +18,5 @@ GROUP BY "Product line"
 ORDER BY faturamento_total DESC;
 
 SELECT COUNT(*) FROM raw_vendas;
+
+SELECT COUNT(*) FROM vendas_tratadas; --conferindo se a quantidade de registros na tabela tratada é igual à quantidade de registros na tabela raw (deve ser igual, pois não houve exclusão de registros, apenas transformação de tipos e validação de constraints)

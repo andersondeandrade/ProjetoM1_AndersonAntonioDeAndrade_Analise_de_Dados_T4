@@ -1,0 +1,21 @@
+﻿coluna,tipo,descricao,origem
+id_venda,VARCHAR(50),Identificador único da venda (PK),Invoice ID
+filial,VARCHAR(10),Filial onde a venda ocorreu,Branch
+cidade,VARCHAR(100),Cidade da filial,City
+tipo_cliente,VARCHAR(50),Member ou Normal,Customer type
+genero,VARCHAR(20),Gênero do cliente,Gender
+linha_produto,VARCHAR(150),Categoria do produto,Product line
+preco_unitario,"NUMERIC(10,2)",Preço de uma unidade (>= 0),Unit price
+quantidade,INTEGER,Unidades vendidas (> 0),Quantity
+imposto,"NUMERIC(10,2)",Imposto de 5% da venda (>= 0),Tax 5%
+valor_total,"NUMERIC(12,2)",Valor total = custo + imposto (>= 0),Sales
+data_venda,DATE,Data da venda (texto MM/DD/YYYY convertido),Date
+hora_venda,TIME,Horário da venda (convertido),Time
+forma_pagamento,VARCHAR(50),"Ewallet, Cash ou Credit card",Payment
+custo_mercadoria,"NUMERIC(12,2)",Custo da mercadoria = preço x quantidade,cogs
+margem_percentual,"NUMERIC(10,2)",Margem bruta percentual (constante no dataset),gross margin percentage
+receita_bruta,"NUMERIC(12,2)",Receita bruta (idêntica ao imposto neste dataset),gross income
+avaliacao,"NUMERIC(4,2)","Nota do cliente, de 0 a 10",Rating
+dia_semana,VARCHAR(15),DERIVADA: dia da semana em português,data_venda
+mes,INTEGER,DERIVADA: mês da venda (1 a 12),data_venda
+periodo_dia,VARCHAR(10),"DERIVADA: Manhã (<12h), Tarde (12h-17h) ou Noite (>=18h)",hora_venda
