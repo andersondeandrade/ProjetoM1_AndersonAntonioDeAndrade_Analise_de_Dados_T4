@@ -1,75 +1,90 @@
+# EXTRAÇÃO: roda as consultas SQL na raw_vendas e exporta os resultados em CSV
+
 import os
 import pandas as pd
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 
 PASTA_SRC = os.path.dirname(os.path.abspath(__file__))
 PASTA_PROJETO = os.path.dirname(PASTA_SRC)
+PASTA_RAW = os.path.join(PASTA_PROJETO, 'data', 'raw')
+load_dotenv(os.path.join(PASTA_PROJETO, 'config.env'))
 
-engine = create_engine('postgresql+psycopg2://postgres:030988@localhost:5432/DB_SUPERMARKET')
+url = URL.create(
+    'postgresql+psycopg2',
+    username=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    host=os.getenv('DB_HOST'),
+    port=int(os.getenv('DB_PORT')),
+    database=os.getenv('DB_NAME'),
+)
+engine = create_engine(url)
 
-# Query 1: faturamento e quantidade por filial
-query_filial = """
-    SELECT 
+
+def executar_e_salvar(query, nome_arquivo, titulo):
+    """Executa a consulta, salva o resultado em data/raw/ e mostra na tela."""
+    df = pd.read_sql(query, engine)
+    df.to_csv(os.path.join(PASTA_RAW, nome_arquivo), index=False, encoding='utf-8-sig')
+    print(f"\n{titulo}")
+    print(df)
+    return df
+
+
+# Perguntas 1, 2 e 5: faturamento e quantidade de vendas por filial
+executar_e_salvar("""
+    SELECT
         "Branch" AS filial,
         COUNT(*) AS quantidade_vendas,
         SUM("Sales"::numeric) AS faturamento_total
-    FROM tab_supermarket
+    FROM raw_vendas
     GROUP BY "Branch"
     ORDER BY faturamento_total DESC;
-"""
-df_filial = pd.read_sql(query_filial, engine)
-caminho_filial = os.path.join(PASTA_PROJETO, 'data', 'raw', 'vendas_por_filial.csv')
-df_filial.to_csv(caminho_filial, index=False)
-print("Resumo por filial:")
-print(df_filial)
+""", 'vendas_por_filial.csv', 'Resumo por filial:')
 
-# Query 2: faturamento, quantidade e avaliação por linha de produto
-query_produto = """
-    SELECT 
+# Perguntas 2 e 7: faturamento, quantidade e avaliação por linha de produto
+executar_e_salvar("""
+    SELECT
         "Product line" AS linha_produto,
         COUNT(*) AS quantidade_vendida,
         SUM("Sales"::numeric) AS faturamento_total,
         AVG("Rating"::numeric) AS nota_media
-    FROM tab_supermarket
+    FROM raw_vendas
     GROUP BY "Product line"
     ORDER BY faturamento_total DESC;
-"""
-df_produto = pd.read_sql(query_produto, engine)
-caminho_produto = os.path.join(PASTA_PROJETO, 'data', 'raw', 'vendas_por_produto.csv')
-df_produto.to_csv(caminho_produto, index=False)
-print("\nResumo por produto:")
-print(df_produto)
+""", 'vendas_por_produto.csv', 'Resumo por linha de produto:')
 
-engine.dispose()
-print("\nCSVs salvos com sucesso em data/raw/")
-
-# Query 3: forma de pagamento mais utilizada
-query_pagamento = """
-    SELECT 
+# Pergunta 3: forma de pagamento mais utilizada
+executar_e_salvar("""
+    SELECT
         "Payment" AS forma_pagamento,
         COUNT(*) AS quantidade
-    FROM tab_supermarket
+    FROM raw_vendas
     GROUP BY "Payment"
     ORDER BY quantidade DESC;
-"""
-df_pagamento = pd.read_sql(query_pagamento, engine)
-caminho_pagamento = os.path.join(PASTA_PROJETO, 'data', 'raw', 'forma_pagamento.csv')
-df_pagamento.to_csv(caminho_pagamento, index=False)
-print("\nForma de pagamento mais usada:")
-print(df_pagamento)
+""", 'forma_pagamento.csv', 'Forma de pagamento mais usada:')
 
-# Query 4: valor médio das vendas
-query_media = """
+# Pergunta 4: valor médio das vendas
+executar_e_salvar("""
     SELECT AVG("Sales"::numeric) AS valor_medio_venda
-    FROM tab_supermarket;
-"""
-df_media = pd.read_sql(query_media, engine)
-print("\nValor médio das vendas:")
-print(df_media)
+    FROM raw_vendas;
+""", 'valor_medio_venda.csv', 'Valor médio das vendas:')
 
-# Query 6: quantidade de vendas por dia da semana (em português)
-query_periodo = """
-    SELECT 
+# Maior venda registrada
+executar_e_salvar("""
+    SELECT
+        "Invoice ID" AS id_venda,
+        "Branch" AS filial,
+        "Product line" AS linha_produto,
+        "Sales"::numeric AS valor_venda
+    FROM raw_vendas
+    ORDER BY "Sales"::numeric DESC
+    LIMIT 1;
+""", 'maior_venda.csv', 'Maior venda registrada:')
+
+# Pergunta 6: quantidade de vendas por dia da semana (em português)
+executar_e_salvar("""
+    SELECT
         CASE EXTRACT(DOW FROM TO_DATE("Date", 'MM/DD/YYYY'))
             WHEN 0 THEN 'Domingo'
             WHEN 1 THEN 'Segunda-feira'
@@ -80,12 +95,10 @@ query_periodo = """
             WHEN 6 THEN 'Sábado'
         END AS dia_semana,
         COUNT(*) AS quantidade_vendas
-    FROM tab_supermarket
+    FROM raw_vendas
     GROUP BY EXTRACT(DOW FROM TO_DATE("Date", 'MM/DD/YYYY'))
     ORDER BY quantidade_vendas DESC;
-"""
-df_periodo = pd.read_sql(query_periodo, engine)
-caminho_periodo = os.path.join(PASTA_PROJETO, 'data', 'raw', 'vendas_por_dia_semana.csv')
-df_periodo.to_csv(caminho_periodo, index=False, encoding='utf-8-sig')
-print("\nVendas por dia da semana:")
-print(df_periodo)
+""", 'vendas_por_dia_semana.csv', 'Vendas por dia da semana:')
+
+engine.dispose()
+print("\nCSVs salvos com sucesso em data/raw/")
