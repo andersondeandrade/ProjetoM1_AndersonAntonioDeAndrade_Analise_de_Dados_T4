@@ -1,0 +1,23 @@
+1. Qual filial apresentou o maior faturamento?
+  -> Giza (110,568.71)
+
+2. Qual filial realizou a maior quantidade de vendas?
+  -> Alex (340 vendas)
+
+3. Qual linha de produto apresentou o maior faturamento?
+  -> Food and beverages (56,144.86)
+
+4. Qual linha de produto recebeu a melhor avaliação média?
+  -> Food and beverages (nota média 7.11)
+
+5. Qual foi a forma de pagamento mais utilizada?
+  -> Ewallet (345 vendas, 34.5% do total)
+
+6. Qual foi o valor médio das vendas?
+  -> 322.97 (mediana 253.85)
+
+7. Qual foi a maior venda registrada?
+  -> 1,042.65 (venda 860-79-0874, filial Giza, Fashion accessories)
+
+8. Em qual dia da semana ocorreu a maior quantidade de vendas?
+  -> Sábado (164 vendas)
